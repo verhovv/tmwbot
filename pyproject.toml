@@ -8,6 +8,9 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 tortoise = "^0.1.1"
+aiogram = "3.0.0b7"
+tortoise-orm = {extras = ["asyncpg"], version = "^0.19.3"}
+pip = "^23.1.2"
 
 
 [build-system]
