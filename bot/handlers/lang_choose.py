@@ -9,7 +9,7 @@ router = Router()
 
 @router.message(Text('English'))
 async def on_english_btn(message: types.Message) -> None:
-    user = await Users.filter(id=message.from_user.id).first()
+    user = await Users.get(id=message.from_user.id)
     user.lang = 'en'
     await user.save()
 
@@ -26,7 +26,7 @@ async def on_english_btn(message: types.Message) -> None:
 
 @router.message(Text('Русский'))
 async def on_english_btn(message: types.Message) -> None:
-    user = await Users.filter(id=message.from_user.id).first()
+    user = await Users.get(id=message.from_user.id)
     user.lang = 'ru'
     await user.save()
 
@@ -34,7 +34,7 @@ async def on_english_btn(message: types.Message) -> None:
         text='Язык выбран',
         reply_markup=get_reply_keyboard([
             ['Запустить рекламную компанию'],
-            ['Выполнить рекламную компанию '],
+            ['Выполнить рекламную компанию'],
             ['Купить баллы'],
             ['Продать баллы']
         ])

@@ -5,5 +5,7 @@ from tortoise import fields
 class Users(Model):
     id = fields.IntField(pk=True)
     lang = fields.TextField(default='ru')
-    model_name = fields.TextField(default='')
+    model_nickname = fields.TextField(default='')
+    chaturbate_nickname = fields.TextField(default='')
+    balance = fields.FloatField(default=.0)
     state = fields.TextField(default='choosing language')
