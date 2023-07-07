@@ -14,9 +14,9 @@ async def on_sell_points_btn(message: types.Message) -> None:
     user = await Users.get(id=message.from_user.id)
 
     if user.lang == 'ru':
-        await message.answer('Введите количесвто (от 100)')
+        await message.answer(f'Введите количесвто (от 100) | Баланс: {user.balance:0.2f}')
     if user.lang == 'en':
-        await message.answer('Enter the quantity (from 100)')
+        await message.answer(f'Enter the quantity (from 100) | Balance: {user.balance:0.2f}')
 
     user.state = 'selling points'
     await user.save()
@@ -93,14 +93,29 @@ async def on_wallet_message(callback_query: types.CallbackQuery) -> None:
 
     points = int(callback_query.message.text.split()[-1])
 
+    if user.lang == 'en':
+        text = callback_query.from_user.mention_html() \
+               + '\nwallet: ' + \
+               callback_query.message.text.split('wallet: ')[1].split('. Points')[0] \
+               + '\npoints:' + str(points) + f' | {points * 0.2}'
+    elif user.lang == 'ru':
+        text = callback_query.from_user.mention_html() \
+               + '\nwallet: ' + \
+               callback_query.message.text.split('кошелек: ')[1].split('. Баллы')[0] \
+               + '\npoints:' + str(points) + f' | {points * 0.2}'
+
     for admin_id in admin_ids:
         await main_bot.send_message(chat_id=admin_id,
-                                    text=callback_query.from_user.mention_html() \
-                                         + '\nwallet: ' +
-                                         callback_query.message.text.split('wallet: ')[1].split('.Total')[0] \
-                                         + '\npoints:' + str(points),
+                                    text=text,
                                     parse_mode='html'
                                     )
 
+    user.state = 'new'
     user.balance -= points
+
+    if user.lang == 'ru':
+        await callback_query.message.answer(text=f'Ваш настоящий баланс: {user.balance:0.2f}')
+    elif user.lang == 'en':
+        await callback_query.message.answer(text=f'Your balance: {user.balance:0.2f}')
+
     await user.save()

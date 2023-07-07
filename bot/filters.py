@@ -2,7 +2,7 @@ from aiogram.filters import BaseFilter
 from aiogram.types import Message, CallbackQuery
 
 from bot.database.models import Users
-from settings import admin_ids
+from settings import admin_ids, channel_id, bot as main_bot
 
 
 class UserStateFilter(BaseFilter):
@@ -41,3 +41,15 @@ class ButtonsFilter(BaseFilter):
             'Run an advertising campaign',
             'Buy points', 'Sell points'
         ]
+
+
+class ChannelFilter(BaseFilter):
+    async def __call__(self, something: Message | CallbackQuery) -> bool:
+        user_id = something.from_user.id
+        chat_member = await main_bot.get_chat_member(chat_id=channel_id, user_id=user_id)
+
+        if chat_member.status in ['creator', 'member']:
+            return True
+        channel = await main_bot.get_chat(chat_id=channel_id)
+
+        await main_bot.send_message(chat_id=user_id, text=f'Для начала подпишитесь на канал:\n{channel.invite_link}')

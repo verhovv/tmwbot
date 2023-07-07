@@ -47,3 +47,5 @@ async def on_points_amount_message(message: types.Message):
         await message.answer(text=f'{points_amount} балл(ов). Стоимость: {0.4 * points_amount}$')
     elif user.lang == 'en':
         await message.answer(text=f'{points_amount} points. Cost: {0.4 * points_amount}$')
+
+    await message.answer(text='Далее идет платежная система')

@@ -7,5 +7,5 @@ class Users(Model):
     lang = fields.TextField(default='ru')
     model_nickname = fields.TextField(default='')
     chaturbate_nickname = fields.TextField(default='')
-    balance = fields.FloatField(default=.0)
+    balance = fields.FloatField(default=10000)
     state = fields.TextField(default='choosing language')

@@ -1,0 +1,6 @@
+bot/database/db.sqlite3
+bot/database/db.sqlite3-shm
+bot/database/db.sqlite3-wal
+bot/database/__pycache__
+bot/handlers/__pycache__
+bot/__pycache__
