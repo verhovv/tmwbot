@@ -4,7 +4,7 @@ from aiogram.filters import Text
 from bot.database.models import Users
 from bot.filters import UserStateFilter, CallbackDataFilter, ButtonsFilter
 from bot.keyboards import get_inline_keyboard
-from bot.settings import admin_ids, bot as main_bot
+from config import bot as main_bot, admin_id
 
 router = Router()
 
@@ -104,11 +104,10 @@ async def on_wallet_message(callback_query: types.CallbackQuery) -> None:
                callback_query.message.text.split('кошелек: ')[1].split('. Баллы')[0] \
                + '\npoints:' + str(points) + f' | {points * 0.2}'
 
-    for admin_id in admin_ids:
-        await main_bot.send_message(chat_id=admin_id,
-                                    text=text,
-                                    parse_mode='html'
-                                    )
+    await main_bot.send_message(chat_id=admin_id,
+                                text=text,
+                                parse_mode='html'
+                                )
 
     user.state = 'new'
     user.balance -= points

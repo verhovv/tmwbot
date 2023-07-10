@@ -1,9 +1,9 @@
-from aiogram import types, Router, F
+from aiogram import types, Router
 from aiogram.filters import Text
 
 from bot.database.models import Users
 from bot import keyboards
-from bot.settings import channel_id, bot as main_bot
+from config import channel_id, bot as main_bot
 from bot.filters import CallbackDataFilter, UserStateFilter, ButtonsFilter
 
 router = Router()

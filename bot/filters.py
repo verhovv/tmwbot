@@ -2,7 +2,7 @@ from aiogram.filters import BaseFilter
 from aiogram.types import Message, CallbackQuery
 
 from bot.database.models import Users
-from settings import admin_ids, channel_id, bot as main_bot
+from config import admin_id, channel_id, bot as main_bot
 
 
 class UserStateFilter(BaseFilter):
@@ -28,7 +28,7 @@ class CallbackDataFilter(BaseFilter):
 
 class AdminsFilter(BaseFilter):
     async def __call__(self, something: Message | CallbackQuery) -> bool:
-        return something.from_user.id in admin_ids
+        return something.from_user.id == admin_id
 
 
 class ButtonsFilter(BaseFilter):

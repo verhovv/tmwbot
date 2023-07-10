@@ -8,7 +8,7 @@ from handlers.launch_campaign import router as launch_campaign_router
 from handlers.run_campaign import router as run_campaign_router
 from handlers.buy_points import router as buy_points_router
 from handlers.sell_points import router as sell_points_router
-from settings import bot as main_bot
+from config import bot as main_bot
 
 from filters import ChannelFilter
 

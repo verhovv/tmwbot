@@ -4,3 +4,6 @@ bot/database/db.sqlite3-wal
 bot/database/__pycache__
 bot/handlers/__pycache__
 bot/__pycache__
+.env
+.idea
+__pycache__
