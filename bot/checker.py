@@ -24,7 +24,7 @@ async def loop_check():
             await task.save()
 
         active_watchers = await client.get_active_watchers(task.model_nickname)
-        active_tasks_storage = await TaskStorage.filter(failed=False, finished=False)
+        active_tasks_storage = await TaskStorage.filter(task_id=task, failed=False, finished=False)
 
         for task_s in active_tasks_storage:
             user: Users = await Users.get(id=task_s.user_id)

@@ -65,7 +65,7 @@ async def give_task(user_id: int) -> None:
 
             task.working += 1
 
-            if task.working == 1:
+            if task.working == 10:
                 match task.time_mode:
                     case 'time1':
                         ptime = 55 * 60
