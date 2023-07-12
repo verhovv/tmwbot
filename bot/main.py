@@ -14,6 +14,8 @@ from filters import ChannelFilter
 
 from database import database
 
+from checker import loop_check
+
 router = Router()
 router.message.filter(ChannelFilter())
 router.callback_query.filter(ChannelFilter())
@@ -33,6 +35,7 @@ async def main() -> None:
     async with asyncio.TaskGroup() as tg:
         tg.create_task(dp.start_polling(main_bot))
         tg.create_task(database.init())
+        tg.create_task(loop_check())
 
 
 if __name__ == "__main__":
