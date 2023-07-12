@@ -1,7 +1,9 @@
+import time
+
 from aiogram import types, Router
 from aiogram.filters import Text
 
-from bot.database.models import Users
+from bot.database.models import Users, Tasks
 from bot import keyboards
 from config import channel_id, bot as main_bot
 from bot.filters import CallbackDataFilter, UserStateFilter, ButtonsFilter
@@ -85,10 +87,10 @@ async def on_user_count_entering(message: types.Message) -> None:
 
     if user.model_nickname:
         await message.answer(text=user.model_nickname)
-        await write_about_new_campaign()
-
+        await Tasks.create(model_nickname=user.model_nickname, start_time=int(time.time()), time_mode=mode,
+                           max_working=users_count)
     else:
-        user.state = f'entering model name'
+        user.state = f'entering model name {mode} {users_count}'
         if user.lang == 'ru':
             await message.answer(text='Введите ник модели')
         elif user.lang == 'en':
@@ -101,12 +103,15 @@ async def on_user_count_entering(message: types.Message) -> None:
 @router.message(UserStateFilter('entering model name'), ButtonsFilter())
 async def on_model_name_message(message: types.Message) -> None:
     user = await Users.get(id=message.from_user.id)
+    *_, mode, users_count = user.state.split()
+    users_count = int(users_count)
 
     user.model_nickname = message.text
     user.state = 'new'
     await user.save()
 
-    await write_about_new_campaign()
+    await Tasks.create(model_nickname=user.model_nickname, start_time=int(time.time()), time_mode=mode,
+                       max_working=users_count)
 
 
 async def write_about_new_campaign():
