@@ -1,6 +1,6 @@
 from aiohttp import ClientSession
 from fake_headers import Headers
-from config import BASE_URL
+from bot.config import BASE_URL
 
 
 class Client:

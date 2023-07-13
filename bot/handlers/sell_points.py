@@ -4,7 +4,7 @@ from aiogram.filters import Text
 from bot.database.models import Users
 from bot.filters import UserStateFilter, CallbackDataFilter, ButtonsFilter
 from bot.keyboards import get_inline_keyboard
-from config import bot as main_bot, admin_id
+from bot.config import bot as main_bot, admin_id
 
 router = Router()
 

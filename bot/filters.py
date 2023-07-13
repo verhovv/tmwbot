@@ -2,7 +2,7 @@ from aiogram.filters import BaseFilter
 from aiogram.types import Message, CallbackQuery
 
 from bot.database.models import Users
-from config import admin_id, channel_id, bot as main_bot
+from bot.config import admin_id, channel_id, bot as main_bot
 
 
 class UserStateFilter(BaseFilter):
