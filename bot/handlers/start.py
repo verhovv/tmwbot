@@ -9,7 +9,10 @@ router = Router()
 
 @router.message(Command('start'))
 async def on_start_cmd(message: types.Message) -> None:
-    await Users.create(id=message.from_user.id)
+    try:
+        await Users.create(id=message.from_user.id)
+    except Exception:
+        pass
 
     await message.answer(
         text='<b>Выбор языка English / Русский</b>\n\nБот создан для взаимного пиара на сайте chaturbate',

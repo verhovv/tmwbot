@@ -134,6 +134,11 @@ async def on_model_name_message(message: types.Message) -> None:
         max_working=users_count,
     )
 
+    if user.lang == 'ru':
+        await message.answer(text='Новая рекламная компания началась')
+    elif user.lang == 'en':
+        await message.answer(text='A new advertising campaign has begun')
+
 
 async def write_about_new_campaign():
     await main_bot.send_message(

@@ -6,9 +6,30 @@ import time
 
 
 async def loop_check():
-    print("start loop")
-    while True:
-        await asyncio.sleep(3 * 7)
+    await asyncio.sleep(5 * 60)
+
+    started_tasks = await Tasks.filter(started=True, active=True)
+
+    for task in started_tasks:
+        if time.time() > task.end_time:
+            match task.time_mode:
+                case "time1":
+                    cost = 1
+                case "time2":
+                    cost = 0.9 * 2
+                case "time3":
+                    cost = 0.8 * 3
+
+            task.active = False
+            await task.save()
+
+        active_watchers = await client.get_active_watchers(task.model_nickname)
+        active_tasks_storage = await TaskStorage.filter(
+            task_id=task, failed=False, finished=False
+        )
+
+        for task_s in active_tasks_storage:
+            user: Users = await Users.get(id=task_s.user_id)
 
         started_tasks = await Tasks.filter(active=True)
         print(started_tasks)
