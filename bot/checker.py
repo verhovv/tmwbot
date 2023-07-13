@@ -14,11 +14,11 @@ async def loop_check():
         if time.time() > task.end_time:
             match task.time_mode:
                 case 'time1':
-                    cost = task.max_working
+                    cost = 1
                 case 'time2':
-                    cost = task.max_working * 0.9 * 2
+                    cost = 0.9 * 2
                 case 'time3':
-                    cost = task.max_working * 0.8 * 3
+                    cost = 0.8 * 3
 
             task.active = False
             await task.save()

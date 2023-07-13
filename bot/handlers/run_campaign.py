@@ -61,8 +61,12 @@ async def give_task(user_id: int) -> None:
     for task in active_tasks:
         if task.working < task.max_working and task.model_nickname not in [i.model_nickname for i in working_tasks] \
                 and (time.time() - task.start_time) < 30 * 60:
-            await main_bot.send_message(chat_id=user_id, text=task.model_nickname)
-
+            if user.lang == 'ru':
+                await main_bot.send_message(chat_id=user_id,
+                                            text=f'Перейдите по ссылке\n\nhttps://chaturbate.com/{task.model_nickname}')
+            elif user.lang == 'en':
+                await main_bot.send_message(chat_id=user_id,
+                                            text=f'Go to link\n\nhttps://chaturbate.com/{task.model_nickname}')
             task.working += 1
 
             if task.working == 10:

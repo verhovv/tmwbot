@@ -113,6 +113,11 @@ async def on_model_name_message(message: types.Message) -> None:
     await Tasks.create(model_nickname=user.model_nickname, start_time=int(time.time()), time_mode=mode,
                        max_working=users_count)
 
+    if user.lang == 'ru':
+        await message.answer(text='Новая рекламная компания началась')
+    elif user.lang == 'en':
+        await message.answer(text='A new advertising campaign has begun')
+
 
 async def write_about_new_campaign():
     await main_bot.send_message(chat_id=channel_id, text='Началась новая рекламная компания\n\n'
