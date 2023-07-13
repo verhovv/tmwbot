@@ -3,7 +3,7 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv('../.env')
+load_dotenv('.env')
 
 token = os.getenv('TOKEN')
 bot = Bot(token, parse_mode="HTML")

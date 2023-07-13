@@ -1,11 +1,9 @@
-import asyncio
-
 from aiohttp import ClientSession
 from fake_headers import Headers
+from bot.config import BASE_URL
 
 
 class Client:
-    BASE_URL = "https://www.youtucam.com"
     GET_ACTIVE_WATCHERS_URL = BASE_URL + "/api/getchatuserlist/"
 
     @staticmethod
@@ -21,7 +19,6 @@ class Client:
                     Client.GET_ACTIVE_WATCHERS_URL, params=params
             ) as response:
                 raw_users = (await response.text()).split(",")
-                print(await response.text())
         return Client._exclude_users(raw_users)
 
     @staticmethod

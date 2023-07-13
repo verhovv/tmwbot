@@ -6,4 +6,6 @@ bot/handlers/__pycache__
 bot/__pycache__
 .env
 .idea
+.vscode
+.venv
 __pycache__

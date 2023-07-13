@@ -2,19 +2,19 @@ import asyncio
 
 from aiogram import Router, Dispatcher
 
-from handlers.start import router as start_router
-from handlers.lang_choose import router as lang_router
-from handlers.launch_campaign import router as launch_campaign_router
-from handlers.run_campaign import router as run_campaign_router
-from handlers.buy_points import router as buy_points_router
-from handlers.sell_points import router as sell_points_router
-from config import bot as main_bot
+from bot.handlers.start import router as start_router
+from bot.handlers.lang_choose import router as lang_router
+from bot.handlers.launch_campaign import router as launch_campaign_router
+from bot.handlers.run_campaign import router as run_campaign_router
+from bot.handlers.buy_points import router as buy_points_router
+from bot.handlers.sell_points import router as sell_points_router
+from bot.config import bot as main_bot
 
-from filters import ChannelFilter
+from bot.filters import ChannelFilter
 
-from database import database
+from bot.database import database
 
-from checker import loop_check
+from bot.checker import loop_check
 
 router = Router()
 router.message.filter(ChannelFilter())
