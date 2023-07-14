@@ -29,7 +29,7 @@ async def loop_check():
         )
 
         for task_s in active_tasks_storage:
-            user: Users = await Users.get(id=task_s.user_id)
+            user: Users = await Users.get(id=task_s.user)
 
         started_tasks = await Tasks.filter(active=True)
         print(started_tasks)
@@ -51,7 +51,7 @@ async def loop_check():
             active_tasks_storage = await TaskStorage.filter(task_id=task)
 
             for task_s in active_tasks_storage:
-                user = await task_s.user_id.all()
+                user = await task_s.user.all()
                 if user.chaturbate_nickname in active_watchers:
                     await main_bot.send_message(
                         chat_id=user.id,

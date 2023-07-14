@@ -4,8 +4,15 @@ from aiogram import Router, types
 from bot.database.models import Users, Tasks, TaskStorage
 from bot.filters import *
 from aiogram.filters import Text
+from bot.keyboards import get_inline_keyboard
 
 router = Router()
+
+modes = {
+    'time1': ('55-75 min', 55 * 60, 1),
+    'time2': ('115-140 min', 115 * 60, 1.8),
+    'time3': ('180-200 min', 180 * 60, 2.4)
+}
 
 
 @router.message(Text(['Выполнить рекламную компанию', 'Run an advertising campaign']))
@@ -50,7 +57,7 @@ async def on_entering_nickname_message(message: types.Message) -> None:
 
 
 async def give_task(user_id: int) -> None:
-    working_tasks = await TaskStorage.filter(user_id=user_id, finished=False)
+    working_tasks = await TaskStorage.filter(user=user_id, finished=False)
     user = await Users.get(id=user_id)
     active_tasks = await Tasks.filter(active=True)
 
@@ -62,31 +69,38 @@ async def give_task(user_id: int) -> None:
         if task.working < task.max_working and task.model_nickname not in [i.model_nickname for i in working_tasks] \
                 and (time.time() - task.start_time) < 30 * 60:
             if user.lang == 'ru':
-                await main_bot.send_message(chat_id=user_id,
-                                            text=f'Перейдите по ссылке\n\nhttps://chaturbate.com/{task.model_nickname}')
+                text = f'Время выполнения: {modes[task.time_mode][0]}\n\nПерейдите по ссылке\nhttps://chaturbate.com/{task.model_nickname}'
+                keyboard = get_inline_keyboard([[{'Начать выполнение': f'start_ex {task.id}'}]])
             elif user.lang == 'en':
-                await main_bot.send_message(chat_id=user_id,
-                                            text=f'Go to link\n\nhttps://chaturbate.com/{task.model_nickname}')
-            task.working += 1
+                text = f'Lead time: {modes[task.time_mode][0]}\n\nGo to link\nhttps://chaturbate.com/{task.model_nickname}'
+                keyboard = get_inline_keyboard([[{'Start execution': f'start_ex {task.id}'}]])
 
-            if task.working == 10:
-                match task.time_mode:
-                    case 'time1':
-                        ptime = 55 * 60
-                    case 'time2':
-                        ptime = 115 * 60
-                    case 'time3':
-                        ptime = 180 * 60
-
-                task.start_time = int(time.time())
-                task.started = True
-                task.end_time = task.end_time + ptime
-                await main_bot.send_message(chat_id=channel_id,
-                                            text=f'Началась новая рекламная компания\n\n<a href="https://t.me/{main_bot.id}">ссылка</a>')
-
-            await task.save()
-
-            await TaskStorage.create(task_id=task, user_id=user, model_nickname=task.model_nickname)
+            await main_bot.send_message(chat_id=user_id, text=text, reply_markup=keyboard)
             return
 
     await main_bot.send_message(chat_id=user_id, text='Нет доступных компаний')
+
+
+@router.callback_query(lambda x: x.data.split()[0] == 'start_ex')
+async def on_start_ex_callback(callback_query: types.CallbackQuery) -> None:
+    await callback_query.message.edit_reply_markup(reply_markup=None)
+
+    _, task_id = callback_query.data.split()
+    task_id = int(task_id)
+    task = await Tasks.get(id=task_id)
+    task.working += 1
+
+    if await TaskStorage.filter(user=(await Users.get(id=callback_query.from_user.id)), task=task, finished=False):
+        return
+
+    if task.working == 10:
+        task.start_time = int(time.time())
+        task.started = True
+        task.end_time = task.end_time + modes[task.time_mode][1]
+        await main_bot.send_message(chat_id=channel_id,
+                                    text=f'Началась новая рекламная компания\n\n<a href="https://t.me/{main_bot.id}">ссылка</a>')
+
+    await task.save()
+
+    await TaskStorage.create(task=task, user=(await Users.get(id=callback_query.from_user.id)),
+                             model_nickname=task.model_nickname)

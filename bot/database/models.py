@@ -23,8 +23,8 @@ class Tasks(Model):
 
 
 class TaskStorage(Model):
-    user_id = fields.ForeignKeyField('models.Users')
-    task_id = fields.ForeignKeyField('models.Tasks')
+    user = fields.ForeignKeyField('models.Users')
+    task = fields.ForeignKeyField('models.Tasks')
     model_nickname = fields.TextField()
     failed = fields.BooleanField(default=False)
     finished = fields.BooleanField(default=False)
