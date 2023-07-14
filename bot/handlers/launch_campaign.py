@@ -5,7 +5,7 @@ from aiogram.filters import Text
 
 from bot.database.models import Users, Tasks
 from bot import keyboards
-from bot.config import channel_id, bot as main_bot
+from bot.config import channel_id, time_modes, bot as main_bot
 from bot.filters import CallbackDataFilter, UserStateFilter, ButtonsFilter
 
 router = Router()
@@ -82,15 +82,7 @@ async def on_user_count_entering(message: types.Message) -> None:
         elif user.lang == "en":
             await message.answer(text="Values from 10 are allowed")
         return
-
-    match mode:
-        case "time1":
-            cost = users_count
-        case "time2":
-            cost = users_count * 0.9 * 2
-        case "time3":
-            cost = users_count * 0.8 * 3
-
+    cost = users_count * time_modes[mode][2]
     if user.balance < cost:
         if user.lang == "ru":
             await message.answer(text="У вас недостаточно средств")
@@ -144,5 +136,5 @@ async def write_about_new_campaign():
     await main_bot.send_message(
         chat_id=channel_id,
         text="Началась новая рекламная компания\n\n"
-        f'<a href="tg://user?id={main_bot.id}">Ссылка на бота</a>',
+             f'<a href="tg://user?id={main_bot.id}">Ссылка на бота</a>',
     )

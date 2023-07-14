@@ -5,14 +5,9 @@ from bot.database.models import Users, Tasks, TaskStorage
 from bot.filters import *
 from aiogram.filters import Text
 from bot.keyboards import get_inline_keyboard
+from bot.config import time_modes
 
 router = Router()
-
-modes = {
-    'time1': ('55-75 min', 55 * 60, 1),
-    'time2': ('115-140 min', 115 * 60, 1.8),
-    'time3': ('180-200 min', 180 * 60, 2.4)
-}
 
 
 @router.message(Text(['Выполнить рекламную компанию', 'Run an advertising campaign']))
@@ -69,10 +64,10 @@ async def give_task(user_id: int) -> None:
         if task.working < task.max_working and task.model_nickname not in [i.model_nickname for i in working_tasks] \
                 and (time.time() - task.start_time) < 30 * 60:
             if user.lang == 'ru':
-                text = f'Время выполнения: {modes[task.time_mode][0]}\n\nПерейдите по ссылке\nhttps://chaturbate.com/{task.model_nickname}'
+                text = f'Время выполнения: {time_modes[task.time_mode][0]}\n\nПерейдите по ссылке\nhttps://chaturbate.com/{task.model_nickname}'
                 keyboard = get_inline_keyboard([[{'Начать выполнение': f'start_ex {task.id}'}]])
             elif user.lang == 'en':
-                text = f'Lead time: {modes[task.time_mode][0]}\n\nGo to link\nhttps://chaturbate.com/{task.model_nickname}'
+                text = f'Lead time: {time_modes[task.time_mode][0]}\n\nGo to link\nhttps://chaturbate.com/{task.model_nickname}'
                 keyboard = get_inline_keyboard([[{'Start execution': f'start_ex {task.id}'}]])
 
             await main_bot.send_message(chat_id=user_id, text=text, reply_markup=keyboard)
@@ -96,7 +91,7 @@ async def on_start_ex_callback(callback_query: types.CallbackQuery) -> None:
     if task.working == 10:
         task.start_time = int(time.time())
         task.started = True
-        task.end_time = task.end_time + modes[task.time_mode][1]
+        task.end_time = task.end_time + time_modes[task.time_mode][1]
         await main_bot.send_message(chat_id=channel_id,
                                     text=f'Началась новая рекламная компания\n\n<a href="https://t.me/{main_bot.id}">ссылка</a>')
 
