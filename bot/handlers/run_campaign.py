@@ -61,7 +61,6 @@ async def give_task(user_id: int) -> None:
         return
 
     for task in active_tasks:
-        print(await task.all())
         if task.working < task.max_working and task.model_nickname not in [i.model_nickname for i in working_tasks] \
                 and ((time.time() - task.start_time) < 30 * 60 or not task.started):
             if user.lang == 'ru':

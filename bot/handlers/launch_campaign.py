@@ -91,7 +91,19 @@ async def on_user_count_entering(message: types.Message) -> None:
         return
 
     if user.model_nickname:
-        await message.answer(text=user.model_nickname)
+        if user.lang == 'ru':
+            await message.answer(
+                text=f'Ник: {user.model_nickname}\nВремя выполнения: {time_modes[mode][0]}\nЦена: {time_modes[mode][2]} за пользователя | (всего {time_modes[mode][2] * users_count})',
+                reply_markup=keyboards.get_inline_keyboard([
+                    [{'Подтвердить': f'ct {users_count} {mode}'}]
+                ]))
+        elif user.lang == 'en':
+            await message.answer(
+                text=f'Nickname: {user.model_nickname}\nLead time: {time_modes[mode][0]}\nCost: {time_modes[mode][2]} per user | (at all {time_modes[mode][2] * users_count})',
+                reply_markup=keyboards.get_inline_keyboard([
+                    [{'Confirm': f'ct {users_count} {mode}'}]
+                ])
+            )
         await Tasks.create(
             model_nickname=user.model_nickname,
             start_time=int(time.time()),
