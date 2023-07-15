@@ -61,8 +61,9 @@ async def give_task(user_id: int) -> None:
         return
 
     for task in active_tasks:
+        print(await task.all())
         if task.working < task.max_working and task.model_nickname not in [i.model_nickname for i in working_tasks] \
-                and (time.time() - task.start_time) < 30 * 60:
+                and ((time.time() - task.start_time) < 30 * 60 or not task.started):
             if user.lang == 'ru':
                 text = f'Время выполнения: {time_modes[task.time_mode][0]}\n\nПерейдите по ссылке\nhttps://chaturbate.com/{task.model_nickname}'
                 keyboard = get_inline_keyboard([[{'Начать выполнение': f'start_ex {task.id}'}]])
@@ -78,15 +79,22 @@ async def give_task(user_id: int) -> None:
 
 @router.callback_query(lambda x: x.data.split()[0] == 'start_ex')
 async def on_start_ex_callback(callback_query: types.CallbackQuery) -> None:
-    await callback_query.message.edit_reply_markup(reply_markup=None)
-
     _, task_id = callback_query.data.split()
     task_id = int(task_id)
     task = await Tasks.get(id=task_id)
     task.working += 1
 
+    user = await Users.get(id=callback_query.from_user.id)
+
     if await TaskStorage.filter(user=(await Users.get(id=callback_query.from_user.id)), task=task, finished=False):
         return
+
+    if user.lang == 'ru':
+        text = f'Вы приступили к выполнению рекламной компании\nВремя выолнения: {time_modes[task.time_mode][0]}\n\nСсылка: https://chaturbate.com/{task.model_nickname}'
+    elif user.lang == 'en':
+        text = f'You have started the implementation of an advertising campaign\nExecution time: {time_modes[task.time_mode][0]}\n\nLink: https://chaturbate.com/{task.model_nickname}'
+
+    await callback_query.message.edit_text(text=text, reply_markup=None)
 
     if task.working == 10:
         task.start_time = int(time.time())

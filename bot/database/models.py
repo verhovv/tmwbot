@@ -15,7 +15,7 @@ class Tasks(Model):
     model_nickname = fields.TextField()
     max_working = fields.IntField()
     time_mode = fields.TextField()
-    start_time = fields.IntField()
+    start_time = fields.IntField(default=0)
     end_time = fields.IntField(default=0)
     working = fields.IntField(default=0)
     started = fields.BooleanField(default=False)

@@ -22,7 +22,7 @@ async def on_launch_campaign_btn(message: types.Message) -> None:
     user = await Users.get(id=message.from_user.id)
 
     if user.lang == "ru":
-        text = "<b>55-70 мин</b>\n1 пользователь - 1 балл\n\n<b>115-140 мин</b>\n1 пользователь 0,9 балла в час\n\n<b>180-200 мин</b>\n1 пользователь 0,8 балла в час"
+        text = f"<b>55-70 мин</b>\n1 пользователь - 1 балл\n\n<b>115-140 мин</b>\n1 пользователь 0,9 балла в час\n\n<b>180-200 мин</b>\n1 пользователь 0,8 балла в час\n\nБаланс: {user.balance:.2f}"
         keyboard = keyboards.get_inline_keyboard(
             [
                 [{"55-70 мин": "time1"}],
@@ -31,7 +31,7 @@ async def on_launch_campaign_btn(message: types.Message) -> None:
             ]
         )
     elif user.lang == "en":
-        text = "<b>55-70 min</b>\n1 user - 1 point\n\n<b>115-140 min</b>\n1 user 0.9 points per hour\n\n<b>180-200 min</b>\n1 user 0.8 points per hour"
+        text = f"<b>55-70 min</b>\n1 user - 1 point\n\n<b>115-140 min</b>\n1 user 0.9 points per hour\n\n<b>180-200 min</b>\n1 user 0.8 points per hour\n\nBalance: {user.balance:.2f}"
         keyboard = keyboards.get_inline_keyboard(
             [
                 [{"55-70 min": "time1"}],
@@ -119,17 +119,40 @@ async def on_model_name_message(message: types.Message) -> None:
     user.state = "new"
     await user.save()
 
+    if user.lang == 'ru':
+        await message.answer(
+            text=f'Ник: {user.model_nickname}\nВремя выполнения: {time_modes[mode][0]}\nЦена: {time_modes[mode][2]} за пользователя | (всего {time_modes[mode][2] * users_count})',
+            reply_markup=keyboards.get_inline_keyboard([
+                [{'Подтвердить': f'ct {users_count} {mode}'}]
+            ]))
+    elif user.lang == 'en':
+        await message.answer(
+            text=f'Nickname: {user.model_nickname}\nLead time: {time_modes[mode][0]}\nCost: {time_modes[mode][2]} per user | (at all {time_modes[mode][2] * users_count})',
+            reply_markup=keyboards.get_inline_keyboard([
+                [{'Confirm': f'ct {users_count} {mode}'}]
+            ])
+        )
+
+
+@router.callback_query(lambda x: x.data.split()[0] == 'ct')
+async def on_ct_callback(callback_query: types.CallbackQuery):
+    _, user_count, mode = callback_query.data.split()
+    user_count = int(user_count)
+
+    user = await Users.get(id=callback_query.from_user.id)
+
     await Tasks.create(
         model_nickname=user.model_nickname,
-        start_time=int(time.time()),
         time_mode=mode,
-        max_working=users_count,
+        max_working=user_count
     )
 
+    await callback_query.message.edit_reply_markup(None)
+
     if user.lang == 'ru':
-        await message.answer(text='Новая рекламная компания началась')
+        await callback_query.message.answer(text='Рекламная компания началась')
     elif user.lang == 'en':
-        await message.answer(text='A new advertising campaign has begun')
+        await callback_query.message.answer(text='Advertising campaign started')
 
 
 async def write_about_new_campaign():
