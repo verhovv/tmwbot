@@ -11,15 +11,22 @@ async def loop_check():
 
         started_tasks = await Tasks.filter(started=True, active=True)
 
-        print(started_tasks)
         for task in started_tasks:
             active_watchers = await client.get_active_watchers(task.model_nickname)
             active_tasks_storage = await TaskStorage.filter(task=task, failed=False)
 
-            print(task)
             cost = time_modes[task.time_mode][2]
 
             if time.time() > task.end_time:
+                model = await Users.get(model_nickname=task.model_nickname)
+                try:
+                    if model.lang == 'ru':
+                        await main_bot.send_message(chat_id=model.id, text='Рекламная компания закончена')
+                    elif model.lang == 'en':
+                        await main_bot.send_message(chat_id=model.id, text='The advertising campaign is over')
+                except Exception:
+                    pass
+
                 task.active = False
                 await task.save()
 
@@ -31,10 +38,13 @@ async def loop_check():
                     user.balance += cost
                     await user.save()
 
-                    await main_bot.send_message(
-                        chat_id=user.id,
-                        text=f"Можете закрыть ссылку с {task_s.model_nickname}. Баланс пополнен на {cost}",
-                    )
+                    try:
+                        await main_bot.send_message(
+                            chat_id=user.id,
+                            text=f"Можете закрыть ссылку с {task_s.model_nickname}. Баланс пополнен на {cost}",
+                        )
+                    except Exception:
+                        pass
                 continue
 
             for task_s in active_tasks_storage:

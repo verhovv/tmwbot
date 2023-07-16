@@ -95,10 +95,10 @@ async def on_start_ex_callback(callback_query: types.CallbackQuery) -> None:
 
     await callback_query.message.edit_text(text=text, reply_markup=None)
 
-    if task.working == 10:
+    if task.working == 1:
         task.start_time = int(time.time())
         task.started = True
-        task.end_time = task.end_time + time_modes[task.time_mode][1]
+        task.end_time = task.start_time + time_modes[task.time_mode][1]
         await main_bot.send_message(chat_id=channel_id,
                                     text=f'Началась новая рекламная компания\n\n<a href="https://t.me/{main_bot.id}">ссылка</a>')
 
