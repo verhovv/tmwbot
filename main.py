@@ -8,7 +8,10 @@ from bot.handlers.launch_campaign import router as launch_campaign_router
 from bot.handlers.run_campaign import router as run_campaign_router
 from bot.handlers.buy_points import router as buy_points_router
 from bot.handlers.sell_points import router as sell_points_router
+from bot.handlers.admin_handler import router as admin_router
 from bot.config import bot as main_bot
+
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from bot.filters import ChannelFilter
 
@@ -20,6 +23,7 @@ router = Router()
 router.message.filter(ChannelFilter())
 router.callback_query.filter(ChannelFilter())
 
+router.include_router(admin_router)
 router.include_router(start_router)
 router.include_router(lang_router)
 router.include_router(launch_campaign_router)
@@ -29,7 +33,7 @@ router.include_router(sell_points_router)
 
 
 async def main() -> None:
-    dp = Dispatcher()
+    dp = Dispatcher(storage=MemoryStorage())
     dp.include_router(router)
 
     async with asyncio.TaskGroup() as tg:

@@ -12,7 +12,6 @@ class Users(Model):
 
 
 class Tasks(Model):
-    model_nickname = fields.TextField()
     max_working = fields.IntField()
     time_mode = fields.TextField()
     start_time = fields.IntField(default=0)
@@ -20,11 +19,15 @@ class Tasks(Model):
     working = fields.IntField(default=0)
     started = fields.BooleanField(default=False)
     active = fields.BooleanField(default=True)
+    finished = fields.BooleanField(default=False)
+    coins_after_ending = fields.IntField(default=0)
+
+    user = fields.ForeignKeyField('models.Users')
 
 
 class TaskStorage(Model):
     user = fields.ForeignKeyField('models.Users')
     task = fields.ForeignKeyField('models.Tasks')
-    model_nickname = fields.TextField()
     failed = fields.BooleanField(default=False)
     finished = fields.BooleanField(default=False)
+    start_time = fields.IntField(default=0)

@@ -40,12 +40,12 @@ async def on_points_amount_message(message: types.Message):
         if user.lang == 'ru':
             await message.answer('Купить можно только от 10 баллов')
         elif user.lang == 'en':
-            await message.answer('You can only buy from 10 points')
+            await message.answer('You can buy only from 10 points')
         return
 
     if user.lang == 'ru':
-        await message.answer(text=f'{points_amount} балл(ов). Стоимость: {0.4 * points_amount}$')
+        await message.answer(text=f'{points_amount} балл(ов). Стоимость: {0.3 * points_amount}$')
     elif user.lang == 'en':
-        await message.answer(text=f'{points_amount} points. Cost: {0.4 * points_amount}$')
+        await message.answer(text=f'{points_amount} points. Cost: {0.15 * points_amount}$')
 
-    await message.answer(text='Далее идет платежная система')
+    await message.answer(text='Покупка и продажа баллов недоступна')

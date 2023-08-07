@@ -57,6 +57,8 @@ async def on_time_callback(callback_query: types.CallbackQuery) -> None:
     user.state = f"{callback_query.data} entering"
     await user.save()
 
+    await callback_query.answer()
+
 
 @router.message(
     UserStateFilter([f"{x} entering" for x in ["time1", "time2", "time3"]]),
@@ -85,7 +87,7 @@ async def on_user_count_entering(message: types.Message) -> None:
     cost = users_count * time_modes[mode][2]
     if user.balance < cost:
         if user.lang == "ru":
-            await message.answer(text="У вас недостаточно средств")
+            await message.answer(text="У вас недостаточно баллов")
         elif user.lang == "en":
             await message.answer(text="You don't have enough funds")
         return
@@ -104,12 +106,6 @@ async def on_user_count_entering(message: types.Message) -> None:
                     [{'Confirm': f'ct {users_count} {mode}'}]
                 ])
             )
-        await Tasks.create(
-            model_nickname=user.model_nickname,
-            start_time=int(time.time()),
-            time_mode=mode,
-            max_working=users_count,
-        )
     else:
         user.state = f"entering model name {mode} {users_count}"
         if user.lang == "ru":
@@ -154,9 +150,11 @@ async def on_ct_callback(callback_query: types.CallbackQuery):
     user = await Users.get(id=callback_query.from_user.id)
 
     await Tasks.create(
-        model_nickname=user.model_nickname,
         time_mode=mode,
-        max_working=user_count
+        max_working=user_count,
+        user=user,
+        start_time=int(time.time()),
+        coins_after_ending=user.balance
     )
 
     await callback_query.message.edit_reply_markup(None)
@@ -165,6 +163,10 @@ async def on_ct_callback(callback_query: types.CallbackQuery):
         await callback_query.message.answer(text='Рекламная компания началась')
     elif user.lang == 'en':
         await callback_query.message.answer(text='Advertising campaign started')
+
+    await write_about_new_campaign()
+
+    await callback_query.answer()
 
 
 async def write_about_new_campaign():

@@ -12,6 +12,8 @@ tortoise-orm = {extras = ["asyncpg"], version = "^0.19.3"}
 pip = "^23.1.2"
 python-dotenv = "^1.0.0"
 fake-headers = "^1.0.2"
+pandas = "^2.0.3"
+openpyxl = "^3.1.2"
 
 
 [build-system]

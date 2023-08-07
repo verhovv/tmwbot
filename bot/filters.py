@@ -28,7 +28,7 @@ class CallbackDataFilter(BaseFilter):
 
 class AdminsFilter(BaseFilter):
     async def __call__(self, something: Message | CallbackQuery) -> bool:
-        return something.from_user.id == admin_id
+        return str(something.from_user.id) == admin_id
 
 
 class ButtonsFilter(BaseFilter):
