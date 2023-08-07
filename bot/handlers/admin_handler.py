@@ -5,6 +5,7 @@ from aiogram.types import FSInputFile
 
 from bot.adminpanel import AdminPanelCallbackFactory, AdminPanelAction, AdminStates, EditActions, \
     EditUserCallbackFactory, EditStates
+from bot.config import time_modes
 from bot.database.models import Users, Tasks
 from bot.filters import AdminsFilter
 from bot.inline_keyboards import get_find_by_keyboard, get_edit_user_keyboard
@@ -32,7 +33,7 @@ async def on_admin_panel_callbacks(callback: types.CallbackQuery, callback_data:
 
 
 @router.message(AdminStates())
-async def on_find_by_model_nickname_message(message: types.Message, state: FSMContext):
+async def on_find_by_model_nickname_message(message: types.Message, state: FSMContext, bot: Bot):
     if await state.get_state() == AdminStates.find_by_chaturbate_nickname:
         users = await Users.filter(chaturbate_nickname=message.text)
         if not users:
@@ -49,8 +50,9 @@ async def on_find_by_model_nickname_message(message: types.Message, state: FSMCo
             return
 
     for user in users:
+        username = (await bot.get_chat_member(chat_id=user.id, user_id=user.id)).user.username
         await message.answer(
-            text=f'<b>ID:</b> {user.id}\n<b>username:</b> {message.from_user.username}\n<b>chaturbate_nickname:</b> {user.chaturbate_nickname}\n<b>model_nickname:</b> {user.model_nickname}\n<b>balance:</b> {user.balance:.2f}',
+            text=f'<b>ID:</b> {user.id}\n<b>username:</b> {username}\n<b>chaturbate_nickname:</b> {user.chaturbate_nickname}\n<b>model_nickname:</b> {user.model_nickname}\n<b>balance:</b> {user.balance:.2f}',
             reply_markup=get_edit_user_keyboard(user.id)
         )
     await state.clear()
@@ -82,9 +84,11 @@ async def on_edit_model_nickname_message(message: types.Message, state: FSMConte
     user.model_nickname = message.text
     await user.save()
 
+    username = (await bot.get_chat_member(chat_id=user.id, user_id=user.id)).user.username
+
     await message.answer(text=f'Имя исполнителя успешно изменено (<s>{old_model_name}</s> -> <b>{message.text}</b>)')
     await bot.edit_message_text(chat_id=message.from_user.id, message_id=sdata['message_id'],
-                                text=f'<b>ID:</b> {user.id}\n<b>username:</b> {message.from_user.username}\n<b>chaturbate_nickname:</b> {user.chaturbate_nickname}\n<b>model_nickname:</b> {user.model_nickname}\n<b>balance:</b> {user.balance:.2f}',
+                                text=f'<b>ID:</b> {user.id}\n<b>username:</b> {username}\n<b>chaturbate_nickname:</b> {user.chaturbate_nickname}\n<b>model_nickname:</b> {user.model_nickname}\n<b>balance:</b> {user.balance:.2f}',
                                 reply_markup=get_edit_user_keyboard(user.id))
 
     await state.clear()
@@ -99,15 +103,17 @@ async def on_edit_chaturbate_nickname_message(message: types.Message, state: FSM
     user.chaturbate_nickname = message.text
     await user.save()
 
+    username = (await bot.get_chat_member(chat_id=user.id, user_id=user.id)).user.username
+
     await message.answer(text=f'Имя модели успешно изменен (<s>{old_model_name}</s> -> <b>{message.text}</b>)')
     await bot.edit_message_text(chat_id=message.from_user.id, message_id=sdata['message_id'],
-                                text=f'<b>ID:</b> {user.id}\n<b>username:</b> {message.from_user.username}\n<b>chaturbate_nickname:</b> {user.chaturbate_nickname}\n<b>model_nickname:</b> {user.model_nickname}\n<b>balance:</b> {user.balance:.2f}',
+                                text=f'<b>ID:</b> {user.id}\n<b>username:</b> {username}\n<b>chaturbate_nickname:</b> {user.chaturbate_nickname}\n<b>model_nickname:</b> {user.model_nickname}\n<b>balance:</b> {user.balance:.2f}',
                                 reply_markup=get_edit_user_keyboard(user.id))
     await state.clear()
 
 
 @router.message(EditStates.edit_balance)
-async def on_edit_model_nickname_message(message: types.Message, state: FSMContext, bot: Bot):
+async def on_edit_balance_message(message: types.Message, state: FSMContext, bot: Bot):
     sdata = await state.get_data()
 
     try:
@@ -123,9 +129,11 @@ async def on_edit_model_nickname_message(message: types.Message, state: FSMConte
     user.balance = balance
     await user.save()
 
+    username = (await bot.get_chat_member(chat_id=user.id, user_id=user.id)).user.username
+
     await message.answer(text=f'Баланс успешно изменен (<s>{old_balance}</s> -> <b>{message.text}</b>)')
     await bot.edit_message_text(chat_id=message.from_user.id, message_id=sdata['message_id'],
-                                text=f'<b>ID:</b> {user.id}\n<b>username:</b> {message.from_user.username}\n<b>chaturbate_nickname:</b> {user.chaturbate_nickname}\n<b>model_nickname:</b> {user.model_nickname}\n<b>balance:</b> {user.balance:.2f}',
+                                text=f'<b>ID:</b> {user.id}\n<b>username:</b> {username}\n<b>chaturbate_nickname:</b> {user.chaturbate_nickname}\n<b>model_nickname:</b> {user.model_nickname}\n<b>balance:</b> {user.balance:.2f}',
                                 reply_markup=get_edit_user_keyboard(user.id))
     await state.clear()
 
@@ -177,6 +185,9 @@ async def on_minus1_callback(callback: types.CallbackQuery):
         if task.working == task.max_working:
             await callback.message.answer(text='Достигнуто максимальное значение')
             return
+        elif task.working == 9:
+            task.started = True
+            task.end_time = task.start_time + time_modes[task.time_mode][1]
 
         task.working += 1
 

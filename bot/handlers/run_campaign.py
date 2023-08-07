@@ -90,7 +90,7 @@ async def on_start_ex_callback(callback_query: types.CallbackQuery) -> None:
 
     user = await Users.get(id=callback_query.from_user.id)
 
-    if await TaskStorage.filter(user=(await Users.get(id=callback_query.from_user.id)), task=task, finished=False):
+    if await TaskStorage.filter(user=user, task=task, finished=False):
         return
 
     if user.lang == 'ru':

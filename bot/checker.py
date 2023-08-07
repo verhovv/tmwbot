@@ -7,22 +7,23 @@ import time
 
 async def loop_check():
     while True:
-        await asyncio.sleep(60)
+        await asyncio.sleep(5 * 60)
         active_tasks_storage = await TaskStorage.filter(failed=False, finished=False)
         for active_task in active_tasks_storage:
             task = await active_task.task.get()
-
             user = await active_task.user.get()
-            active_watchers = await client.get_active_watchers(user.model_nickname)
+            model_user = await task.user.get()
+
+            active_watchers = await client.get_active_watchers(model_user.model_nickname)
             if user.chaturbate_nickname in active_watchers:
                 await main_bot.send_message(
                     chat_id=user.id,
-                    text=f"Вы присутствуете на стриме {user.model_nickname}, ваш ник: {user.chaturbate_nickname}",
+                    text=f"Вы присутствуете на стриме {model_user.model_nickname}, ваш ник: {user.chaturbate_nickname}",
                 )
             else:
                 await main_bot.send_message(
                     chat_id=user.id,
-                    text=f"Вас нет на стриме {user.model_nickname}, ваш ник: {user.chaturbate_nickname}.\n"
+                    text=f"Вас нет на стриме {model_user.model_nickname}, ваш ник: {user.chaturbate_nickname}.\n"
                          f"Можете закрыть ссылку, Ваш баланс не изменился.",
                 )
                 task.working -= 1
@@ -48,13 +49,13 @@ async def loop_check():
 
                 await main_bot.send_message(
                     chat_id=user.id,
-                    text=f"Можете закрыть ссылку с {user.model_nickname}. Баланс пополнен на {cost}",
+                    text=f"Можете закрыть ссылку с {model_user.model_nickname}. Баланс пополнен на {cost}",
                 )
 
         for model_task in await Tasks.filter(active=True):
             cost = time_modes[model_task.time_mode][2]
             model_task_storage = await TaskStorage.filter(failed=False, finished=False, task=model_task)
-            if model_task.start_time + 5 * 60 < time.time() and model_task.working < 10:
+            if model_task.start_time + 30 * 60 < time.time() and model_task.working < 10:
                 model_user = await model_task.user.get()
                 await main_bot.send_message(
                     chat_id=model_user.id,
@@ -62,6 +63,7 @@ async def loop_check():
                 )
 
                 model_task.active = False
+                model_task.finished = True
                 model_user = await model_task.user.get()
                 model_task.coins_after_ending = model_user.balance
                 await model_task.save()
@@ -70,7 +72,7 @@ async def loop_check():
                     user = await task_s.user.get()
                     await main_bot.send_message(
                         chat_id=user.id,
-                        text=f"К сожалению, на задание с моделью {user.model_nickname} не набралось достаточно людей. Можете закрыть ссылку с ней."
+                        text=f"К сожалению, на задание с моделью {model_user.model_nickname} не набралось достаточно людей. Можете закрыть ссылку с ней."
                     )
 
                     task_s.failed = True

@@ -5,6 +5,7 @@ from datetime import datetime
 import pandas
 from aiogram import Bot
 
+from bot.config import time_modes
 from bot.database.models import Tasks
 
 
@@ -22,6 +23,8 @@ async def save_statistic(bot: Bot):
             f'{datetime_obj.day}.{datetime_obj.month}.{datetime_obj.year} | {datetime_obj.hour}:{datetime_obj.minute}')
         data['Имя модели'].append(user.model_nickname)
         data['Ник тг'].append(('@' + username) if username else 'Скрыто')
+        data['Количество выполняющих'].append(task.working)
+        data['Время выполнения'].append(time_modes[task.time_mode][0])
         data['Остаток на балансе после выполнения'].append(task.coins_after_ending)
 
     pandas.DataFrame(data).to_excel('статистика.xlsx', index=False)

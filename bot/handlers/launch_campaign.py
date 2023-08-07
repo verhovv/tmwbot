@@ -113,7 +113,6 @@ async def on_user_count_entering(message: types.Message) -> None:
         elif user.lang == "en":
             await message.answer(text="Enter the model's nickname")
 
-    user.balance -= cost
     await user.save()
 
 
